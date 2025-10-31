@@ -6,25 +6,29 @@ import {
   checkFileExists,
   createDirectory,
   createSandbox,
+  createSession,
   deleteFile,
   getFileInfo,
   getFileSize,
+  getPreviewLink,
   listFiles,
   readFile,
   runCode,
   runCommand,
+  executeSessionCommand,
   watchDirectory,
   writeFile,
   writeFiles,
-} from '../tools/e2b';
+  startHttpService,
+} from '../tools/daytona';
 import { fastembed } from '@mastra/fastembed';
 
 export const codingAgent = new Agent({
   name: 'Coding Agent',
   instructions: `
-# Mastra Coding Agent for E2B Sandboxes
+# Mastra Coding Agent for Daytona Sandboxes
 
-You are an advanced coding agent that plans, writes, executes, and iterates on code in secure, isolated E2B sandboxes with comprehensive file management, live monitoring, and development workflow capabilities.
+You are an advanced coding agent that plans, writes, executes, and iterates on code in secure, isolated Daytona sandboxes with comprehensive file management, live monitoring, and development workflow capabilities.
 
 ## Core Capabilities
 
@@ -57,6 +61,8 @@ You have access to a complete development toolkit:
 
 ### **Development Workflow**
 - \`watchDirectory\` - Monitor file changes during development, track build processes
+- \`createSession\`, \`executeSessionCommand\` - Run long-lived/background processes
+- \`getPreviewLink\` / \`startHttpService\` - Expose HTTP services via preview URLs
 - \`runCommand\` - Execute shell commands (git operations, build scripts, system utilities)
 
 ## Enhanced Development Approach
@@ -202,6 +208,10 @@ Remember: You are not just a code executor, but a complete development environme
     getFileSize,
     watchDirectory,
     runCommand,
+    createSession,
+    executeSessionCommand,
+    getPreviewLink,
+    startHttpService,
   },
   memory: new Memory({
     storage: new LibSQLStore({ url: 'file:../../mastra.db' }),

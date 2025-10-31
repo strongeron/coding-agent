@@ -1,14 +1,14 @@
-# E2B Code Execution Agent
+# Daytona Code Execution Agent
 
-An advanced Mastra template that provides a coding agent capable of planning, writing, executing, and iterating on code in secure, isolated E2B sandboxes with comprehensive file management and development workflow capabilities.
+An advanced Mastra template that provides a coding agent capable of planning, writing, executing, and iterating on code in secure, isolated Daytona sandboxes with comprehensive file management and development workflow capabilities.
 
 ## Overview
 
-This template demonstrates how to build an AI coding assistant that can work with real development environments. The agent can create sandboxes, manage files and directories, execute code in multiple languages, and monitor development workflows - all within secure, isolated E2B environments.
+This template demonstrates how to build an AI coding assistant that can work with real development environments. The agent can create sandboxes, manage files and directories, execute code in multiple languages, and monitor development workflows — all within secure, isolated Daytona environments.
 
 ## Features
 
-- **Secure Code Execution**: Run Python, JavaScript, and TypeScript code in isolated E2B sandboxes
+- **Secure Code Execution**: Run Python, JavaScript, and TypeScript code in isolated Daytona sandboxes
 - **Complete File Management**: Create, read, write, delete files and directories with batch operations
 - **Multi-Language Support**: Execute code in Python, JavaScript, and TypeScript environments
 - **Live Development Monitoring**: Watch directory changes and monitor development workflows
@@ -19,7 +19,7 @@ This template demonstrates how to build an AI coding assistant that can work wit
 ## Prerequisites
 
 - Node.js 20 or higher
-- E2B API key (sign up at [e2b.dev](https://e2b.dev))
+- Daytona API key (Dashboard → Keys)
 - OpenAI API key
 
 ## Setup
@@ -40,7 +40,10 @@ This template demonstrates how to build an AI coding assistant that can work wit
    ```
 
    ```env
-   E2B_API_KEY="your-e2b-api-key-here"
+   DAYTONA_API_KEY="your-daytona-api-key-here"
+   # Optional overrides
+   # DAYTONA_API_URL="https://app.daytona.io/api"
+   # DAYTONA_TARGET="us" # or "eu"
    OPENAI_API_KEY="your-openai-api-key-here"
    ```
 
@@ -64,7 +67,7 @@ The main agent with comprehensive development capabilities:
 - **Development Monitoring**: Watches for changes and monitors workflows
 - **Memory Integration**: Maintains conversation context and project history
 
-#### **E2B Tools** (`src/mastra/tools/e2b.ts`)
+#### **Daytona Tools** (`src/mastra/tools/daytona.ts`)
 
 Complete toolkit for sandbox interaction:
 
@@ -113,7 +116,8 @@ The agent includes a configured memory system:
 ### Environment Variables
 
 ```bash
-E2B_API_KEY=your_e2b_api_key_here
+DAYTONA_API_KEY=your_daytona_api_key_here
+# DAYTONA_TARGET=us
 OPENAI_API_KEY=your_openai_api_key_here
 ```
 
@@ -135,7 +139,7 @@ export const codingAgent = new Agent({
 
 ## Common Issues
 
-### "E2B_API_KEY is not set"
+### "DAYTONA_API_KEY is not set"
 
 - Make sure you've set the environment variable
 - Check that your API key is valid and has sufficient credits
@@ -143,9 +147,9 @@ export const codingAgent = new Agent({
 
 ### "Sandbox creation failed"
 
-- Check your E2B API key and account status
+- Check your Daytona API key and account status
 - Ensure you haven't exceeded sandbox limits
-- Verify network connectivity to E2B services
+- Verify network connectivity to Daytona services
 
 ### "Code execution timeout"
 
@@ -172,6 +176,29 @@ src/mastra/
       agents/
         coding-agent.ts              # Main coding agent with development capabilities
       tools/
-        e2b.ts                      # Complete E2B sandbox interaction toolkit
-      index.ts                        # Mastra configuration with storage and logging
+        daytona.ts                   # Complete Daytona sandbox interaction toolkit
+      index.ts                       # Mastra configuration with storage and logging
 ```
+
+## Run Locally
+
+1. Install deps
+
+   ```bash
+   pnpm install
+   ```
+
+2. Create `.env` with keys
+
+   ```bash
+   cp .env.example .env
+   # then set DAYTONA_API_KEY and OPENAI_API_KEY
+   ```
+
+3. Start dev server
+
+   ```bash
+   pnpm run dev
+   ```
+
+The agent will create and operate in Daytona sandboxes using your `DAYTONA_API_KEY`. See `doc/llms-full.txt` for Daytona SDK usage details.
