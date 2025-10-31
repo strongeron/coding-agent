@@ -3,6 +3,7 @@ import { Mastra } from '@mastra/core/mastra';
 import { LibSQLStore } from '@mastra/libsql';
 import { PinoLogger } from '@mastra/loggers';
 import { codingAgent } from './agents/coding-agent';
+import { chatRoute } from '@mastra/ai-sdk';
 
 export const mastra = new Mastra({
   agents: { codingAgent },
@@ -15,5 +16,15 @@ export const mastra = new Mastra({
     default: {
       enabled: true,
     },
+  },
+  server: {
+    port: 4111,
+    host: '0.0.0.0',
+    apiRoutes: [
+      chatRoute({
+        path: '/api/chat',
+        agent: 'codingAgent',
+      }),
+    ],
   },
 });
