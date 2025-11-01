@@ -1,36 +1,28 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ChatInterface } from '../components/Chat/ChatInterface';
 import { ConversationList } from '../components/Sidebar/ConversationList';
 import { SandboxPanel } from '../components/Sidebar/SandboxPanel';
 import { Button } from '../components/ui/button';
-import { LogOut, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 export function Dashboard() {
-  const { user, signOut } = useAuth();
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
-    if (user && !conversationId) {
+    if (!conversationId) {
       createNewConversation();
     }
-  }, [user]);
+  }, []);
 
   const createNewConversation = async () => {
-    if (!user) {
-      console.error('Cannot create conversation: user is null');
-      return;
-    }
-
-    console.log('Creating new conversation for user:', user.id);
+    console.log('Creating new conversation');
 
     try {
       const { data, error } = await supabase
         .from('conversations')
         .insert({
-          user_id: user.id,
           title: 'New Conversation',
         })
         .select()
@@ -86,21 +78,8 @@ export function Dashboard() {
             />
           </div>
 
-          <div className="p-4 border-t border-sidebar-border space-y-4">
+          <div className="p-4 border-t border-sidebar-border">
             <SandboxPanel conversationId={conversationId} />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-sidebar-foreground truncate opacity-70">
-                {user?.email}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={signOut}
-                className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </aside>

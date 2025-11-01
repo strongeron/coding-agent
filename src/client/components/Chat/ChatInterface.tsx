@@ -4,7 +4,6 @@ import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
 import { Send, Loader2 } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 
 interface ChatInterfaceProps {
@@ -19,7 +18,6 @@ interface Message {
 }
 
 export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfaceProps) {
-  const { user } = useAuth();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -121,7 +119,6 @@ export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfacePro
         body: JSON.stringify({
           messages: [...messages, userMessage],
           conversationId,
-          userId: user?.id,
         }),
       });
 

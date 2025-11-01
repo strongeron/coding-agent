@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/button';
 import { ScrollArea } from '../ui/scroll-area';
 import { MessageSquare, Plus, Trash2 } from 'lucide-react';
@@ -23,26 +22,19 @@ export function ConversationList({
   onSelectConversation,
   onNewConversation,
 }: ConversationListProps) {
-  const { user } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
 
   useEffect(() => {
     loadConversations();
-  }, [user]);
+  }, []);
 
   const loadConversations = async () => {
-    if (!user) {
-      console.log('Cannot load conversations: user is null');
-      return;
-    }
-
-    console.log('Loading conversations for user:', user.id);
+    console.log('Loading conversations');
 
     try {
       const { data, error } = await supabase
         .from('conversations')
         .select('id, title, updated_at')
-        .eq('user_id', user.id)
         .order('updated_at', { ascending: false });
 
       if (error) {
