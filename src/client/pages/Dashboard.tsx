@@ -21,17 +21,26 @@ export function Dashboard() {
   const createNewConversation = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
-      .from('conversations')
-      .insert({
-        user_id: user.id,
-        title: 'New Conversation',
-      })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .insert({
+          user_id: user.id,
+          title: 'New Conversation',
+        })
+        .select()
+        .maybeSingle();
 
-    if (data) {
-      setConversationId(data.id);
+      if (error) {
+        console.error('Error creating conversation:', error);
+        return;
+      }
+
+      if (data) {
+        setConversationId(data.id);
+      }
+    } catch (err) {
+      console.error('Failed to create conversation:', err);
     }
   };
 

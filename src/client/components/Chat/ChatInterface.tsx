@@ -36,35 +36,57 @@ export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfacePro
   }, [conversationId]);
 
   const loadMessages = async () => {
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
 
-    if (data) {
-      setMessages(
-        data.map((msg) => ({
-          id: msg.id,
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content,
-        }))
-      );
+      if (error) {
+        console.error('Error loading messages:', error);
+        return;
+      }
+
+      if (data) {
+        setMessages(
+          data.map((msg) => ({
+            id: msg.id,
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+          }))
+        );
+      }
+    } catch (err) {
+      console.error('Failed to load messages:', err);
     }
   };
 
   const saveMessage = async (message: Message) => {
-    await supabase.from('messages').insert({
-      id: message.id,
-      conversation_id: conversationId,
-      role: message.role,
-      content: message.content,
-    });
+    try {
+      const { error: insertError } = await supabase.from('messages').insert({
+        id: message.id,
+        conversation_id: conversationId,
+        role: message.role,
+        content: message.content,
+      });
 
-    await supabase
-      .from('conversations')
-      .update({ updated_at: new Date().toISOString() })
-      .eq('id', conversationId);
+      if (insertError) {
+        console.error('Error saving message:', insertError);
+        return;
+      }
+
+      const { error: updateError } = await supabase
+        .from('conversations')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', conversationId);
+
+      if (updateError) {
+        console.error('Error updating conversation timestamp:', updateError);
+      }
+    } catch (err) {
+      console.error('Failed to save message:', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

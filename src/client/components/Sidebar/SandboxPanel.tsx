@@ -28,14 +28,23 @@ export function SandboxPanel({ conversationId }: SandboxPanelProps) {
   const loadSandboxes = async () => {
     if (!conversationId) return;
 
-    const { data } = await supabase
-      .from('sandboxes')
-      .select('*')
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('sandboxes')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: false });
 
-    if (data) {
-      setSandboxes(data);
+      if (error) {
+        console.error('Error loading sandboxes:', error);
+        return;
+      }
+
+      if (data) {
+        setSandboxes(data);
+      }
+    } catch (err) {
+      console.error('Failed to load sandboxes:', err);
     }
   };
 

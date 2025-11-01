@@ -33,30 +33,46 @@ export function ConversationList({
   const loadConversations = async () => {
     if (!user) return;
 
-    const { data } = await supabase
-      .from('conversations')
-      .select('id, title, updated_at')
-      .eq('user_id', user.id)
-      .order('updated_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('conversations')
+        .select('id, title, updated_at')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false });
 
-    if (data) {
-      setConversations(data);
+      if (error) {
+        console.error('Error loading conversations:', error);
+        return;
+      }
+
+      if (data) {
+        setConversations(data);
+      }
+    } catch (err) {
+      console.error('Failed to load conversations:', err);
     }
   };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    const { error } = await supabase
-      .from('conversations')
-      .delete()
-      .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', id);
 
-    if (!error) {
+      if (error) {
+        console.error('Error deleting conversation:', error);
+        return;
+      }
+
       setConversations(conversations.filter((c) => c.id !== id));
       if (currentConversationId === id) {
         onNewConversation();
       }
+    } catch (err) {
+      console.error('Failed to delete conversation:', err);
     }
   };
 
