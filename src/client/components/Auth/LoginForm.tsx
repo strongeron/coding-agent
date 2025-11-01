@@ -28,6 +28,21 @@ export function LoginForm() {
     setLoading(false);
   };
 
+  const handleQuickLogin = async () => {
+    setError(null);
+    setLoading(true);
+    setEmail('strongeron@gmail.com');
+    setPassword('admin');
+
+    const { error } = await signIn('strongeron@gmail.com', 'admin');
+
+    if (error) {
+      setError(error.message);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4">
       <Card className="w-full max-w-md">
@@ -94,6 +109,21 @@ export function LoginForm() {
               </button>
             </div>
           </form>
+
+          {import.meta.env.DEV && !isSignUp && (
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleQuickLogin}
+                disabled={loading}
+              >
+                <span className="mr-2">🔑</span>
+                Quick Dev Login
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
