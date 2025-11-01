@@ -31,7 +31,12 @@ export function ConversationList({
   }, [user]);
 
   const loadConversations = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('Cannot load conversations: user is null');
+      return;
+    }
+
+    console.log('Loading conversations for user:', user.id);
 
     try {
       const { data, error } = await supabase
@@ -42,14 +47,19 @@ export function ConversationList({
 
       if (error) {
         console.error('Error loading conversations:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return;
       }
 
       if (data) {
+        console.log(`Loaded ${data.length} conversations`);
         setConversations(data);
+      } else {
+        console.log('No conversations data returned');
       }
     } catch (err) {
       console.error('Failed to load conversations:', err);
+      console.error('Exception details:', err instanceof Error ? err.message : String(err));
     }
   };
 

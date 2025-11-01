@@ -36,6 +36,8 @@ export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfacePro
   }, [conversationId]);
 
   const loadMessages = async () => {
+    console.log('Loading messages for conversation:', conversationId);
+
     try {
       const { data, error } = await supabase
         .from('messages')
@@ -45,10 +47,12 @@ export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfacePro
 
       if (error) {
         console.error('Error loading messages:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return;
       }
 
       if (data) {
+        console.log(`Loaded ${data.length} messages`);
         setMessages(
           data.map((msg) => ({
             id: msg.id,
@@ -56,9 +60,12 @@ export function ChatInterface({ conversationId, onNewSandbox }: ChatInterfacePro
             content: msg.content,
           }))
         );
+      } else {
+        console.log('No messages data returned');
       }
     } catch (err) {
       console.error('Failed to load messages:', err);
+      console.error('Exception details:', err instanceof Error ? err.message : String(err));
     }
   };
 

@@ -19,7 +19,12 @@ export function Dashboard() {
   }, [user]);
 
   const createNewConversation = async () => {
-    if (!user) return;
+    if (!user) {
+      console.error('Cannot create conversation: user is null');
+      return;
+    }
+
+    console.log('Creating new conversation for user:', user.id);
 
     try {
       const { data, error } = await supabase
@@ -33,14 +38,19 @@ export function Dashboard() {
 
       if (error) {
         console.error('Error creating conversation:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         return;
       }
 
       if (data) {
+        console.log('Conversation created successfully:', data.id);
         setConversationId(data.id);
+      } else {
+        console.warn('No data returned from conversation creation');
       }
     } catch (err) {
       console.error('Failed to create conversation:', err);
+      console.error('Exception details:', err instanceof Error ? err.message : String(err));
     }
   };
 
