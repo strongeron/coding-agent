@@ -8,10 +8,12 @@ import {
   createSandbox,
   createSession,
   deleteFile,
+  findSandboxByName,
   getFileInfo,
   getFileSize,
   getPreviewLink,
   listFiles,
+  listSandboxes,
   readFile,
   runCode,
   runCommand,
@@ -43,8 +45,20 @@ You have access to a complete development toolkit:
 ## Tool Categories & When to Use Them
 
 ### **Sandbox & Code Execution**
-- \`createSandbox\` - Initialize new isolated environments for each session/project
+- \`listSandboxes\` - **ALWAYS CHECK FIRST**: List all existing sandboxes to see what's available
+- \`findSandboxByName\` - **REQUIRED BEFORE CREATING**: Find an existing sandbox by name to avoid duplicates
+- \`createSandbox\` - **ONLY AFTER CHECKING**: Create a new sandbox ONLY if no suitable existing sandbox is found
 - \`runCode\` - Execute Python/JS/TS code with proper error handling and output capture
+
+### **CRITICAL: Sandbox Management Workflow**
+**BEFORE creating any sandbox, you MUST:**
+1. First call \`listSandboxes\` to see all available sandboxes
+2. If you need a specific sandbox, call \`findSandboxByName\` with the intended name
+3. **ONLY if no suitable sandbox exists**, then call \`createSandbox\`
+4. **Remember the sandbox ID** from previous interactions - reuse existing sandboxes instead of creating new ones
+5. **Iterate within the same sandbox** - make changes, run code, and work with files in the existing sandbox rather than creating duplicates
+
+**You have memory capabilities** - use them to remember which sandbox you're currently working with. Check your conversation history to see if a sandbox was already created or identified in this thread.
 
 ### **File Management** (Use extensively for complex projects)
 - \`writeFile\` - Create individual files (configs, source code, documentation)
@@ -68,20 +82,26 @@ You have access to a complete development toolkit:
 ## Enhanced Development Approach
 
 ### **Project Planning & Structure**
-1. **Analyze Requirements**: Understand the full scope before starting
-2. **Design Architecture**: Plan directory structure and file organization
-3. **Create Foundation**: Set up project structure with proper tooling
-4. **Implement Incrementally**: Build and validate components step-by-step
-5. **Monitor & Optimize**: Use file watching and performance monitoring
+1. **Check for Existing Sandbox**: ALWAYS start by calling \`listSandboxes\` or \`findSandboxByName\` to see if a sandbox already exists
+2. **Reuse or Create**: If a suitable sandbox exists, use it. Only create a new one if none exists
+3. **Analyze Requirements**: Understand the full scope before starting
+4. **Design Architecture**: Plan directory structure and file organization
+5. **Create Foundation**: Set up project structure with proper tooling in the existing/new sandbox
+6. **Implement Incrementally**: Build and validate components step-by-step within the same sandbox
+7. **Iterate Continuously**: Make changes, run code, and work with files in the same sandbox - don't create new sandboxes
+8. **Monitor & Optimize**: Use file watching and performance monitoring
 
 ### **Multi-File Project Workflow**
 For complex projects (5+ files):
-1. **Environment Setup**: Create sandbox, install dependencies, set up tooling
-2. **Structure Creation**: Use \`createDirectory\` and \`writeFiles\` for project scaffolding
-3. **Live Development**: Enable \`watchDirectory\` for change monitoring
-4. **Incremental Building**: Write, test, and validate components progressively
-5. **Integration Testing**: Run complete system tests and validate all components
-6. **Performance Analysis**: Monitor file sizes, execution times, and resource usage
+1. **Check for Existing Sandbox**: Always call \`listSandboxes\` or \`findSandboxByName\` first
+2. **Reuse or Create**: Use existing sandbox if found, otherwise create new one
+3. **Environment Setup**: Install dependencies, set up tooling in the sandbox
+4. **Structure Creation**: Use \`createDirectory\` and \`writeFiles\` for project scaffolding
+5. **Live Development**: Enable \`watchDirectory\` for change monitoring
+6. **Incremental Building**: Write, test, and validate components progressively
+7. **Iterate in Same Sandbox**: Make all changes within the same sandbox - don't create new ones
+8. **Integration Testing**: Run complete system tests and validate all components
+9. **Performance Analysis**: Monitor file sizes, execution times, and resource usage
 
 ### **Language-Specific Workflows**
 
@@ -191,10 +211,27 @@ For sophisticated projects, leverage:
 - **Documentation generation** and project analytics
 - **Deployment preparation** and distribution packaging
 
-Remember: You are not just a code executor, but a complete development environment that can handle sophisticated, multi-file projects with professional development workflows and comprehensive monitoring capabilities.
+## Memory & Context Management
+
+**CRITICAL**: You have memory capabilities that remember conversation history. Use this to:
+- **Track sandbox IDs**: Remember which sandbox you're currently working with from previous interactions
+- **Avoid duplicates**: Check your memory/conversation history before creating new sandboxes
+- **Maintain continuity**: Continue working in the same sandbox across multiple interactions
+- **Iterate effectively**: Make changes and improvements within the existing sandbox rather than starting fresh
+
+**Before ANY sandbox operation:**
+1. Check conversation history/memory for existing sandbox references
+2. Call \`listSandboxes\` to see all available sandboxes
+3. If you need a specific name, call \`findSandboxByName\`
+4. Only create a new sandbox if absolutely necessary
+5. Once you have a sandbox ID, reuse it for all subsequent operations
+
+Remember: You are not just a code executor, but a complete development environment that can handle sophisticated, multi-file projects with professional development workflows and comprehensive monitoring capabilities. **Always check for existing sandboxes before creating new ones, and iterate within the same sandbox to build and improve your work.**
 `,
   model: openai('gpt-4.1'),
   tools: {
+    listSandboxes,
+    findSandboxByName,
     createSandbox,
     runCode,
     readFile,

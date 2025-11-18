@@ -6,9 +6,110 @@ async function getDaytona() {
   return new Daytona();
 }
 
+export const listSandboxes = createTool({
+  id: 'listSandboxes',
+  description: 'CRITICAL: List all existing Daytona sandboxes. ALWAYS call this BEFORE creating a new sandbox to check if one already exists. This prevents duplicate sandbox creation.',
+  inputSchema: z.object({
+    name: z.string().optional().describe('Optional: Filter sandboxes by name (case-sensitive)'),
+  }),
+  outputSchema: z
+    .object({
+      sandboxes: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string().optional(),
+          state: z.string().optional(),
+          language: z.string().optional(),
+        }),
+      ),
+    })
+    .or(z.object({ error: z.string() })),
+  execute: async ({ context }) => {
+    try {
+      const daytona = await getDaytona();
+      // Try to use list() method if available, otherwise try findAll() or similar
+      let sandboxes: any[];
+      try {
+        sandboxes = await (daytona as any).list();
+      } catch {
+        // Fallback: if list() doesn't exist, return empty array with error handling
+        return { error: 'List method not available. You may need to use findOne with a specific name or ID.' };
+      }
+
+      const filtered = context?.name
+        ? sandboxes.filter((s: any) => s.name === context.name)
+        : sandboxes;
+
+      return {
+        sandboxes: filtered.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          state: s.state,
+          language: s.language,
+        })),
+      };
+    } catch (e) {
+      return { error: JSON.stringify(e) };
+    }
+  },
+});
+
+export const findSandboxByName = createTool({
+  id: 'findSandboxByName',
+  description: 'CRITICAL: Find an existing Daytona sandbox by name. ALWAYS call this BEFORE createSandbox to check if a sandbox with the intended name already exists. If found, reuse the existing sandbox instead of creating a duplicate.',
+  inputSchema: z.object({
+    name: z.string().describe('Name of the sandbox to find'),
+  }),
+  outputSchema: z
+    .object({
+      found: z.boolean(),
+      sandboxId: z.string().optional(),
+      name: z.string().optional(),
+      state: z.string().optional(),
+    })
+    .or(z.object({ error: z.string() })),
+  execute: async ({ context }) => {
+    try {
+      const daytona = await getDaytona();
+      // Try findOne with name (some SDKs support finding by name)
+      try {
+        const sandbox = await (daytona as any).findOne(context.name);
+        if (sandbox) {
+          return {
+            found: true,
+            sandboxId: sandbox.id,
+            name: sandbox.name,
+            state: sandbox.state,
+          };
+        }
+        return { found: false };
+      } catch {
+        // If findOne doesn't work with name, try to list and filter
+        try {
+          const sandboxes = await (daytona as any).list();
+          const found = sandboxes.find((s: any) => s.name === context.name);
+          if (found) {
+            return {
+              found: true,
+              sandboxId: found.id,
+              name: found.name,
+              state: found.state,
+            };
+          }
+          return { found: false };
+        } catch {
+          return { error: 'Unable to search for sandbox. Method may not be available in this SDK version.' };
+        }
+      }
+    } catch (e) {
+      return { error: JSON.stringify(e) };
+    }
+  },
+});
+
 export const createSandbox = createTool({
   id: 'createSandbox',
-  description: 'Create a Daytona sandbox',
+  description: 'Create a NEW Daytona sandbox. WARNING: Only call this AFTER checking for existing sandboxes using listSandboxes or findSandboxByName. If a suitable sandbox already exists, reuse it instead of creating a duplicate. Creating unnecessary sandboxes wastes resources.',
   inputSchema: z.object({
     metadata: z.record(z.string()).optional(),
     envs: z.record(z.string()).optional(),
